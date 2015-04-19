@@ -46,7 +46,7 @@ for fileKey in fileKeys:
 		if line != "\n":
 			if fileKey == "idAddress":
 				allData[fileKey][line.split()[1]] = line.split()[0]
-			elif fileKey == "idTemp":;d
+			elif fileKey == "idTemp":
 				allData[fileKey][line.split()[0]] = line.split()[1]
 			elif fileKey == "mapping":
 				allData[fileKey][line.split()[0]] = line.split()[1:]
@@ -84,8 +84,8 @@ for lineNumber,datum in allData["ISHA"].iteritems():
 			mappingAddress = min(mappingList, key=lambda x:abs(x-float(allData["idTemp"][allData["idAddress"][addressForIDAddress]])))
 			finalISHA, finalVFS = allData["mapping"][str(mappingAddress)]
 			# print finalISHA, finalVFS
-			finalISHAs[truncAddress] = finalISHA
-			finalVFSs[truncAddress] = finalVFS
+			finalISHAs[truncAddress] = int(finalISHA)
+			finalVFSs[truncAddress] = int(finalVFS)
 
 for key,initialISHAValues in ISHAValues.iteritems():
 	for initialISHAValue in initialISHAValues:
