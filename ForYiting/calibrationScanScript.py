@@ -1,6 +1,17 @@
 
 import ROOT as r
 
+def getSubDetID(address):
+	# return SubDetID given address
+	return 3
+
+SubDetNames = {
+		3:"TIB",
+		4:"TID",
+		5:"TOB",
+		6:"TEC"
+		}
+
 # ======================================================
 # Configurables
 # ======================================================
@@ -23,8 +34,11 @@ fileNames = {
 # ======================================================
 outFile = r.TFile(outFileName,"RECREATE")
 allData = {}
-ISHAHist = r.TH1D("ISHA"," ; #Delta ISHA ; Entry",201,-100.5,100.5)
-VFSHist = r.TH1D("VFS"," ; #Delta VFS ; Entry ",201,-100.5,100.5)
+ISHAHists = {}
+VFSHists = {}
+for SubDetID,SubDetName in SubDetNames.iteritems():
+	ISHAHists[SubDetID] = r.TH1D("ISHA_%s"%SubDetName," ; #Delta ISHA %s ; Entry"%SubDetName,201,-100.5,100.5)
+	VFSHists[SubDetID] = r.TH1D("VFS_%s"%SubDetName," ; #Delta VFS %s ; Entry"%SubDetName,201,-100.5,100.5)
 
 # ======================================================
 # Add basedir to fileNames, because I am lazy
@@ -81,23 +95,28 @@ for lineNumber,datum in allData["ISHA"].iteritems():
 		addressForIDTemp = allData["idAddress"][addressForIDAddress] 
 		if addressForIDTemp in allData["idTemp"]: 
 			# print addressForIDAddress,allData["idAddress"][addressForIDAddress],allData["idTemp"][allData["idAddress"][addressForIDAddress]]
+			subDetID = getSubDetID(addressForIDTemp)
 			mappingAddress = min(mappingList, key=lambda x:abs(x-float(allData["idTemp"][allData["idAddress"][addressForIDAddress]])))
 			finalISHA, finalVFS = allData["mapping"][str(mappingAddress)]
 			# print finalISHA, finalVFS
-			finalISHAs[truncAddress] = int(finalISHA)
-			finalVFSs[truncAddress] = int(finalVFS)
+			finalISHAs[truncAddress] = (int(finalISHA),subDetID)
+			finalVFSs[truncAddress] = (int(finalVFS),subDetID)
 
 for key,initialISHAValues in ISHAValues.iteritems():
 	for initialISHAValue in initialISHAValues:
-		ISHAHist.Fill(initialISHAValue-finalISHAs[truncAddress])
+		if key in finalISHAs:
+			ISHAHists[finalISHAs[key][1]].Fill(initialISHAValue-finalISHAs[key][0])
 
 for key,initialVFSValues in VFSValues.iteritems():
 	for initialVFSValue in initialVFSValues:
-		VFSHist.Fill(initialVFSValue-finalVFSs[truncAddress])
+		if key in finalVFSs:
+			VFSHists[finalVFSs[key][1]].Fill(initialVFSValue-finalVFSs[key][0])
 
+for key,Hist in ISHAHists.iteritems():
+	Hist.Write()
 
-ISHAHist.Write()
-VFSHist.Write()
+for key,Hist in VFSHists.iteritems():
+	Hist.Write()
 
 outFile.Close()
 
