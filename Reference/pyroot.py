@@ -1,6 +1,12 @@
 import os
 import ROOT as r
 
+# ==========================================================================
+# Passing array to TGraph or TGraphErrors
+# ==========================================================================
+from array import *
+yourArray = array('d',some_list)
+
 #Get the names of all files under a directory
 def getfilelist(dir=""):
 	filelist=[]
